@@ -1,0 +1,32 @@
+Commands for java
+To create directory on HDFS
+- hdfs dfs -mkdir /input_data
+
+To upload file on HDFS
+- hdfs dfs -put file_name.txt /input_data
+
+To execute Java code with Hadoop
+- hadoop jar word_count.jar DriverCode /input_data/file_name.txt /output_dir
+
+To print output on any program
+- hadoop dfs -cat /output_dir/*
+
+for windows users
+- type input_file.txt | python mapper.py | sort | python reducer.py
+for linux users
+- cat input_file.txt | python mapper.py | sort -k1,1 | python reducer.py
+
+Execution using hadoop
+hadoop jar hadoop-streaming-3.3.0.jar -input /mr_data/input_file.txt -output /mr_output_python -mapper mapper.py -reducer reducer.py
+
+Execution of MrJob locally without Using Hadoop
+python word_count.py -r local input.txt
+
+Alternative: Save Output to a File
+python word_count.py -r local input.txt > output.txt
+
+Execution of MrJob Using Hadoop
+python WordCount.py hdfs:///mr_data/input_file.txt -r hadoop --hadoop-streaming-jar hadoop-streaming-3.3.0.jar
+
+Print Output
+hdfs dfs -cat /user/hadoop/output/part-00000
