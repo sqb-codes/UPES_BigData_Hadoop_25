@@ -16,4 +16,35 @@ Download MySQL Connector for SQOOP
 https://mvnrepository.com/artifact/mysql/mysql-connector-java/8.0.16
 and paste in lib folder of SQOOP
 
-Create User in MySQL
+Create Sqoop User in MySQL
+1. Open Administration -> Users and Priviliges (Under Management)
+2. Select Add Account and create new user with Login Name - Sqoop and Limit to host mapping as localhost and set password of your choice
+3. Define roles - under administrative roles select DBManager, DBDesigner and BackupAdmin roles
+4. Grant Priviliges - Grant schema priviliges (add entry and select schemas)
+   for example - you can use schema mathcin pattern as %upes% for all tables name related to upes
+5. Select all priviliges for this schema
+6. Apply once done
+
+Create Hive User in MySQL
+Create one more user hive in MySQL
+Follow same steps
+
+
+Grant permission to Users
+1. Open MySQL CMD
+2. Run these commands
+grant all privileges on test_upes.* to 'sqoop'@'localhost';
+grant all privileges on test_upes.* to 'hive'@'localhost';
+
+
+Test SetUp
+Open new CMD and type
+sqoop list-databases --connect jdbc:mysql://localhost/ --username sqoop -P
+Enter password and it will show list of databases...
+
+
+-----Done------
+
+
+
+
