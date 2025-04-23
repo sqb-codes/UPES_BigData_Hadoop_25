@@ -1,0 +1,21 @@
+1. Install Apache Kafka
+
+macOS:
+1. Install Homebrew (if not already installed): Open Terminal and run the following command:/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+2. Install Kafka using Homebrew:brew install kafka
+3. Start Kafka using Homebrew Services:brew services start kafka
+4. Create topic in kafka
+kafka-topics.sh --create --topic my_new_topic --bootstrap-server localhost:9092 --partitions 3 --replication-factor 2
+5. Check if topic is created
+kafka-topics.sh --list --bootstrap-server localhost:9092
+
+
+Windows:
+1. Download Kafka: Go to the Apache Kafka website and download the latest stable binary for Windows.
+2. Extract the ZIP file: Extract the downloaded ZIP file to a folder on your system (e.g., C:\kafka).
+3. Install Zookeeper (Kafka depends on Zookeeper for managing clusters): Kafka includes a bundled version of Zookeeper. You can use the bundled Zookeeper or install a separate version.To use the bundled Zookeeper:
+    * Open a Command Prompt (cmd) and navigate to the Kafka folder:cd C:\kafka
+    * Start Zookeeper:.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+4. Start Kafka: In a new Command Prompt window, navigate to the Kafka directory and run:.\bin\windows\kafka-server-start.bat .\config\server.properties
+5. Create topic in Kafka
+.\bin\windows\kafka-topics.bat --create --topic my_new_topic --bootstrap-server localhost:9092 --partitions 3 --replication-factor 2
