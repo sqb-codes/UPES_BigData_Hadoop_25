@@ -1,0 +1,8 @@
+Download Sqoop
+https://archive.apache.org/dist/sqoop/1.99.7/sqoop-1.99.7-bin-hadoop200.tar.gz
+
+Unzip archive to any folder
+Make sure path should not contain any  white space
+
+Set SQOOP_HOME in your environment variable
+
