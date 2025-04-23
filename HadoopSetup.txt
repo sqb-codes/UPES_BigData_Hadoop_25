@@ -1,0 +1,123 @@
+Hadoop Installation
+
+Hadoop Setup in Mac
+
+Wget https://dlcdn.apache.org/hadoop/common/hadoop-3.4.1/hadoop-3.4.1.tar.gz
+
+tar -xzvf hadoop-3.4.1.tar.gz
+
+sudo mv hadoop-3.4.1 /usr/local/hadoop
+
+nano ~/.zshrc
+
+Add these :
+export HADOOP_HOME=/usr/local/hadoop
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+source ~/.zshrc
+
+
+Configure Hadoop
+
+cd $HADOOP_HOME/etc/hadoop
+nano core-site.xml
+
+core-site.xml
+<configuration>
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+  </property>
+</configuration>
+
+nano core-site.xml
+hdfs-site.xml:
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:/usr/local/hadoop/hdfs/namenode</value>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:/usr/local/hadoop/hdfs/datanode</value>
+  </property>
+</configuration>
+
+nano core-site.xml
+mapred-site.xml:
+<configuration>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+</configuration>
+
+nano core-site.xml
+yarn-site.xml
+<configuration>
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>localhost</value>
+  </property>
+</configuration>
+
+
+
+Format the Hadoop Filesystem
+hdfs namenode -format
+
+
+Start Hadoop
+
+start-dfs.sh
+start-yarn.sh
+
+If you get error
+localhost: ssh: connect to host localhost port 22: Connection refused
+Starting datanodes
+localhost: ssh: connect to host localhost port 22: Connection refused
+Starting secondary namenodes [Ravikants-MacBook-Pro.local]
+Ravikants-MacBook-Pro.local: ssh: connect to host ravikants-macbook-pro.local port 22: Connection refused
+2025-04-23 09:55:44,673 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+Then
+brew install openssh
+
+Configure SSH for Hadoop:
+ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
+Set Permissions for SSH:
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+ssh localhost
+
+If still not running then
+
+Enable Remote Login: Go to System Preferences → Sharing → Remote Login, and ensure the box is checked. This will start the SSH server and allow SSH connections.
+
+sudo systemsetup -setremotelogin on
+
+
+
+Verify the Installation
+
+HDFS Web UI: http://localhost:9870/
+YARN ResourceManager UI: http://localhost:8088/
+
+
+Running a Sample Program
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 16 1000
+
+
