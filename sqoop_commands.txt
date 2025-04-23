@@ -1,0 +1,21 @@
+Basic Import Command (from MySQL to HDFS):
+sqoop import --connect jdbc:mysql://localhost/db_name --username your_user --password your_password --table table_name --target-dir /user/hadoop/your_table_data
+
+Import Specific Columns from MySQL to HDFS:
+sqoop import --connect jdbc:mysql://localhost/db_name --username your_user --password your_password --table table_name --columns "col1,col2" --target-dir /user/hadoop/your_table_data
+
+Import Data with a WHERE Clause (Data Filtering):
+sqoop import --connect jdbc:mysql://localhost/your_database --username your_user --password your_password --table your_table --where "age > 30" --target-dir /user/hadoop/your_table_data
+
+Parallel Import (Splitting Data Across Multiple Mappers)
+To speed up the import process, you can use the --num-mappers option, which divides the work into multiple mappers. 
+This is useful for large datasets.
+sqoop import --connect jdbc:mysql://localhost/your_database --username your_user --password your_password --table your_table --target-dir /user/hadoop/your_table_data --num-mappers 4
+
+
+Export Data from HDFS to MySQL
+sqoop export --connect jdbc:mysql://localhost/your_database --username your_user --password your_password --table your_table --export-dir /user/hadoop/your_table_data
+
+--export-dir: Specifies the HDFS directory where the data to export is located.
+--table: The MySQL table where the data will be exported.
+
