@@ -12,7 +12,7 @@ Verify path
 Open CMD and type 
 echo %SQOOP_HOME%
 
-Download MySQL Connector for SQOOP
+Download MySQL Connector JAR for SQOOP
 https://mvnrepository.com/artifact/mysql/mysql-connector-java/8.0.16
 and paste in lib folder of SQOOP
 
