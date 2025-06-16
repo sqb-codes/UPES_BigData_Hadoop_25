@@ -18,7 +18,7 @@ https://www.oracle.com/java/technologies/javase-jdk8-downloads.html
 4. Set the path HADOOP_HOME Environment variable
 ======================================================
 5. Configurations
-Edit file C:/Hadoop/etc/hadoop/core-site.xml, 
+Edit file C:/hadoop-3.1.0/etc/hadoop/core-site.xml, 
 paste the xml code in fole and save
 
 <configuration>
@@ -39,12 +39,12 @@ Rename “mapred-site.xml.template” to “mapred-site.xml” and edit this fil
 </configuration>
 ======================================================
 
-Create folder “data” under “C:\Hadoop”
-Create folder “datanode” under “C:\Hadoop\data”
-Create folder “namenode” under “C:\Hadoop\data”
+Create folder “data” under “C:\hadoop-3.1.0”
+Create folder “datanode” under “C:\hadoop-3.1.0\data”
+Create folder “namenode” under “C:\hadoop-3.1.0\data”
 
 ======================================================
-Edit file C:\Hadoop/etc/hadoop/hdfs-site.xml, 
+Edit file C:\hadoop-3.1.0/etc/hadoop/hdfs-site.xml, 
 paste xml code and save this file.
 
 <configuration>
@@ -63,7 +63,7 @@ paste xml code and save this file.
 </configuration>
 ======================================================
 
-Edit file C:/Hadoop/etc/hadoop/yarn-site.xml, 
+Edit file C:/hadoop-3.1.0/etc/hadoop/yarn-site.xml, 
 paste xml code and save this file.
 
 <configuration>
@@ -78,7 +78,7 @@ paste xml code and save this file.
 </configuration>
 ======================================================
 
-Edit file C:/Hadoop/etc/hadoop/hadoop-env.cmd 
+Edit file C:/hadoop-3.1.0/etc/hadoop/hadoop-env.cmd 
 by closing the command line 
 “JAVA_HOME=%JAVA_HOME%” instead of set “JAVA_HOME=C:\Java”
 
@@ -89,7 +89,7 @@ Download
 https://github.com/s911415/apache-hadoop-3.1.0-winutils
 
 - Copy folder bin and replace existing bin folder in 
-C:\Hadoop-2.8.0\bin
+C:\hadoop-3.1.0\bin
 - Format the NameNode
 - Open cmd and type command “hdfs namenode –format”
 ======================================================
