@@ -1,0 +1,137 @@
+Open terminal
+
+docker compose build hive-image
+docker-compose up -d
+docker ps
+docker exec -it hive-server bash
+beeline -u jdbc:hive2://localhost:10000
+
+// Testing Hive
+SHOW DATABASES;
+CREATE DATABASE demo;
+USE demo;
+CREATE TABLE t (id INT, name STRING);
+INSERT INTO t VALUES (1, 'Alice');
+SELECT * FROM t;
+
+High Level Flow:
+1. Tables, Partitions, Buckets, Views
+2. Data munging, Transformations, Query Building and Execution
+3. EDA with Hive
+4. Data Storage and Formats
+5. Hive shell, Data Import/Export
+
+
+Let's start with Hive...
+
+1. Creating a database
+CREATE DATABASE IF NOT EXISTS upes_db_nov;
+
+2. Handling Databases
+SHOW DATABASES;
+
+USE upes_db_nov;
+
+SHOW TABLES;
+
+3. Create Tables
+CREATE TABLE upes_orders (
+    order_id BIGINT,
+    order_date STRING,
+    student_id BIGINT,
+    order_status STRING,
+    amount DOUBLE
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+Notes:
+ROW FORMAT:
+- Telling Hive that each row in the row file is structured
+
+DELIMITED
+- rows are delimited by a separator
+
+FIELDS TERMINATED BY ','
+- columns terminated by ','
+- that means row will be like: 101,2025-11-19,9891,SHIPPED,45000.00
+
+STORED AS TEXTFILE:
+- Telling Hive which file format to use for storage purpose
+- So here format is plain text file
+
+
+DESCRIBE FORMATTED upes_orders;
+
+4. Loading Data into Tables
+
+There are 3 ways to load data:
+1. LOAD DATA
+2. INSERT INTO
+3. CREATE TABLE AS SELECT (CTAS) for transformations
+
+Create CSV and insert some dummy data
+mkdir -p /opt/data
+
+cat >/opt/data/orders.csv <<EOF
+1,2025-10-10,501,PENDING,800.00
+2,2025-11-10,501,SHIPPED,700.00
+3,2025-11-08,501,PENDING,1000.00
+4,2025-10-16,501,COMPLETED,1800.00
+5,2025-11-05,501,COMPLETED,9000.00
+EOF
+
+cat /opt/data/orders.csv
+
+Now go back to beeline
+USE upes_db_nov;
+
+Now let's load the data
+LOAD DATA LOCAL INPATH '/opt/data/orders.csv' INTO TABLE upes_orders;
+
+Verify if data is loaded to table
+SELECT * FROM upes_orders;
+
+
+External table
+Exit from beeline and go back to terminal of hive-server
+
+Create an HDFS folder:
+hdfs dfs -mkdir -p /user/hive/external/orders_ext
+
+Upload the CSV file into HDFS:
+hdfs dfs -put /opt/data/orders.csv /user/hive/external/orders_ext/
+
+Verify HDFS:
+hdfs dfs -ls /user/hive/external/orders_ext
+
+You should see:
+orders.csv
+
+
+Create External Table in Hive
+Go back to Beeline:
+
+beeline -u jdbc:hive2://localhost:10000
+CREATE retail_db;
+USE retail_db;
+
+
+Now run:
+
+CREATE EXTERNAL TABLE orders_external (
+  order_id      BIGINT,
+  order_date    STRING,
+  customer_id   BIGINT,
+  order_status  STRING,
+  amount        DOUBLE
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 'hdfs://namenode:9000/user/hive/external/orders_ext';
+
+
+Run:
+SELECT * FROM orders_external;
+You should see all 5 records from the CSV file you uploaded into HDFS.
