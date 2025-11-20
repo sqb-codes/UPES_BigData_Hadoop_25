@@ -74,12 +74,17 @@ There are 3 ways to load data:
 Create CSV and insert some dummy data
 mkdir -p /opt/data
 
-cat >/opt/data/orders.csv <<EOF
+cat >/opt/data/orders_v1.csv <<EOF
 1,2025-10-10,501,PENDING,800.00
-2,2025-11-10,501,SHIPPED,700.00
-3,2025-11-08,501,PENDING,1000.00
-4,2025-10-16,501,COMPLETED,1800.00
-5,2025-11-05,501,COMPLETED,9000.00
+2,2025-11-10,502,SHIPPED,700.00
+3,2025-11-08,503,PENDING,1000.00
+4,2025-10-16,504,COMPLETED,1800.00
+5,2025-11-05,505,COMPLETED,9000.00
+6,2025-10-10,506,PENDING,800.00
+7,2025-11-10,502,SHIPPED,700.00
+8,2025-11-08,504,PENDING,1000.00
+9,2025-10-16,504,COMPLETED,1800.00
+10,2025-10-16,505,COMPLETED,9000.00
 EOF
 
 cat /opt/data/orders.csv
@@ -98,13 +103,13 @@ External table
 Exit from beeline and go back to terminal of hive-server
 
 Create an HDFS folder:
-hdfs dfs -mkdir -p /user/hive/external/orders_ext
+hdfs dfs -mkdir -p /user/hive/external/upes_orders
 
 Upload the CSV file into HDFS:
-hdfs dfs -put /opt/data/orders.csv /user/hive/external/orders_ext/
+hdfs dfs -put /opt/data/orders.csv /user/hive/external/upes_orders/
 
 Verify HDFS:
-hdfs dfs -ls /user/hive/external/orders_ext
+hdfs dfs -ls /user/hive/external/upes_orders/
 
 You should see:
 orders.csv
@@ -114,24 +119,149 @@ Create External Table in Hive
 Go back to Beeline:
 
 beeline -u jdbc:hive2://localhost:10000
-CREATE retail_db;
-USE retail_db;
+CREATE DATABASE upes_retail_db;
+USE upes_retail_db;
 
 
 Now run:
 
-CREATE EXTERNAL TABLE orders_external (
+CREATE EXTERNAL TABLE upes_orders (
   order_id      BIGINT,
   order_date    STRING,
-  customer_id   BIGINT,
+  student_id   BIGINT,
   order_status  STRING,
   amount        DOUBLE
 )
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
-LOCATION 'hdfs://namenode:9000/user/hive/external/orders_ext';
+LOCATION 'hdfs://namenode:9000/user/hive/external/upes_orders/';
 
+
+CREATE EXTERNAL TABLE upes_orders (
+  order_id      BIGINT,
+  order_date    STRING,
+  student_id    BIGINT,
+  order_status  STRING,
+  amount        DOUBLE
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION '/user/hive/external/upes_orders';
+
+SELECT DISTINCT input__file__name FROM upes_orders;
 
 Run:
-SELECT * FROM orders_external;
+SELECT * FROM upes_orders;
 You should see all 5 records from the CSV file you uploaded into HDFS.
+
+
+Partitions
+- Static
+  - Explicitly specify the partition value when loading data
+  - Useful when we already know partition value
+  - ETL loads per-day batches
+
+
+cat >/opt/data/orders_v2.csv <<EOF
+1,501,PENDING,800.00
+2,502,SHIPPED,700.00
+3,503,PENDING,1000.00
+4,504,COMPLETED,1800.00
+5,505,COMPLETED,9000.00
+6,506,PENDING,800.00
+7,502,SHIPPED,700.00
+8,504,PENDING,1000.00
+9,504,COMPLETED,1800.00
+10,505,COMPLETED,9000.00
+EOF
+
+
+CREATE TABLE upes_orders_static_part (
+    order_id BIGINT,
+    student_id BIGINT,
+    order_status STRING,
+    amount DOUBLE
+)
+PARTITIONED BY (order_date STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH '/opt/data/orders_v2.csv' INTO TABLE upes_orders_static_part PARTITION (order_date='2025-10-10');
+
+SELECT * FROM upes_orders_static_part;
+
+SHOW PARTITIONS upes_orders_static_part;
+
+Multiple partitions
+cat >/opt/data/orders_oct15.csv <<EOF
+11,511,PENDING,800.00
+12,542,SHIPPED,700.00
+13,513,PENDING,1000.00
+14,505,COMPLETED,1800.00
+15,505,COMPLETED,9000.00
+EOF
+
+LOAD DATA LOCAL INPATH '/opt/data/orders_oct15.csv' INTO TABLE upes_orders_static_part PARTITION (order_date='2025-10-15');
+
+Query only a specific partition
+SELECT * FROM upes_orders_static_part WHERE order_date='2025-10-15';
+This is known as partition pruning
+
+
+- Dynamic
+  - Hive creates partitions on the fly based on data
+  - Hive automatically detects partition values from data
+
+1. Create a staging table (Raw data table)
+CREATE TABLE upes_orders_staging (
+    order_id BIGINT,
+    order_date STRING,
+    student_id BIGINT,
+    order_status STRING,
+    amount DOUBLE
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+Now load data into staging table
+LOAD DATA LOCAL INPATH '/opt/data/orders_v1.csv' INTO TABLE upes_orders_staging;
+
+2. Create the final partitioned table
+CREATE TABLE upes_orders_dynamic (
+    order_id BIGINT,
+    student_id BIGINT,
+    order_status STRING,
+    amount DOUBLE
+)
+PARTITIONED BY (order_date STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+3. Set Hive properties for dynamic partitioning
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+
+4. Insert data from staging table into partitioned table
+INSERT INTO TABLE upes_orders_dynamic PARTITION (order_date) SELECT order_id, student_id, order_status, amount, order_date FROM upes_orders_staging;
+
+SELECT * FROM upes_orders_dynamic;
+SHOW PARTITIONS upes_orders_dynamic;
+
+
+EDA Queries
+1. Total number of orders
+2. Get first 5 orders
+3. Get all unique orders status
+4. Get orders with amount > 5000
+5. Get total amount spent by each student
+6. Frequency of each order_status
+7. Count orders by each date
+8. Get total revenue
+9. Average order amount
+10. Count orders per student
+11. Top 5 highest amount orders
+12. Get number of rows per partition
+13. Revenue per partition
