@@ -1,0 +1,15 @@
+services:
+  spark:
+    image: apache/spark:latest
+    container_name: spark-pipeline
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - ./:/app   # Mount project folder
+    working_dir: /app
+    command: >
+      bash -c "
+      /opt/spark/bin/spark-submit /app/app.py
+      "
+    ports:
+      - "4040:4040"   # Spark UI

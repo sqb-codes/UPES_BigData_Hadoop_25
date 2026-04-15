@@ -1,0 +1,7 @@
+E-commerce Clickstream + Orders Pipeline
+
+User browse products -> events generated
+Orders are placed -> transactional data
+Process data in PySpark -> generate insight
+
+

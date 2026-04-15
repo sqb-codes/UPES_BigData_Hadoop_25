@@ -1,0 +1,6 @@
+[
+    {"user_id":101, "product_id":1001, "event_type":"view"},
+    {"user_id":102, "product_id":1009, "event_type":"click"},
+    {"user_id":101, "product_id":1090, "event_type":"view"},
+    {"user_id":103, "product_id":1003, "event_type":"order"}
+]
