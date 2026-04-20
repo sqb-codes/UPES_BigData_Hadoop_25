@@ -1,0 +1,22 @@
+1. setup docker
+2. create docker-compose.yaml
+3. docker-compose up -d
+4. pip install kafka-python
+5. create python file - kafkaProducer.py
+6. create python file - kafkaConsumer.py
+
+Transaction - Kafka - Fraud Detection Service - Alert System
+
+Producer - sends transaction
+Kafka - store & partition data
+Consumer - reads & detect fraud
+
+7. create a topic in kafka
+docker exec -it kafka kafka-topics \
+--create --topic transactions \
+--bootstrap-server localhost:9092 \
+--partitions 3 \
+--replication-factor 1
+
+8. python kafkaProducer.py
+9. on new terminal - python kafkaConsumer.py
