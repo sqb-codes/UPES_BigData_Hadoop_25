@@ -1,0 +1,74 @@
+AI-Powered E-commerce Recommendation Engine
+
+Now platforms like (Amazon, Flipkart, Netflix) don't wait for batch processing
+These platforms react instantly to user behavior:
+- User click - recommendation changes immediately
+- User searches - suggestions updated in real-time
+
+User Actions:
+- View Product
+- Click Product
+- Add to Cart
+- Purchase
+
+User Action -> Event generated -> Kafka -> Spark -> Recommendation -> UI Update
+
+Real-time loop
+1. User interacts with UI (streamlit)
+2. Event generated (Python Backend)
+3. Sent to Apache Kafka
+4. Spark processes events:
+- Session tracking
+- Behavior analysis
+5. Recommendation logic execution:
+- "User who viewed X product also viewed Y product"
+6. Results stored in Database (MongoDB)
+7. UI updates instantly with new recommendations
+8. AI explains recommendation with Gemini
+
+Python
+- core programming
+Kafka
+- handles streaming events
+- decouples front-end & back-end
+Spark
+- Sessionization
+- Aggregations
+- Recommendation logic
+MongoDB
+- User sessions
+- Recommendations
+- Product data
+FastAPI:
+- API Layer
+- Connect UI <-> Kafka
+- Serve recommendations
+
+
+Phase 1: Setup Kafka + Docker + Producer
+1. Setup docker-compose.yaml for Kafka and Zookeeper - Done
+2. Create a kafka topic - Done
+docker exec -it kafka bash
+kafka-topics --create \
+--topic clickstream \
+--bootstrap-server localhost:9092 \
+--partitions 1 \
+--replication-factor 1
+3. pip install kafka-python - Done
+4. Implement producer.py
+5. Verify Data in Kafka
+kafka-console-consumer \
+--topic clickstream \
+--bootstrap-server localhost:9092 \
+--from-beginning
+
+
+
+
+
+
+
+
+
+
+
