@@ -19,13 +19,27 @@ services:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
-
-      # Zookeeper connection
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
-      # Listener configs
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      # Two listeners: one for host, one for Docker-internal (Spark)
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
 
-      # Replication
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  spark:
+    image: apache/spark:3.5.3
+    container_name: spark-pipeline
+    command: sleep infinity
+    user: root
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    volumes:
+      - ./:/app
+    working_dir: /app
+    depends_on:
+      - kafka
+    ports:
+      - "4040:4040"
