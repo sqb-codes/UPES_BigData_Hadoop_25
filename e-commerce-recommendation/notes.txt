@@ -75,9 +75,15 @@ docker exec -it spark-pipeline bash
 /app/consumer/consumer.py
 
 
+Phase 3: Transformation + Recommendation Engine
+Convert raw events into useful recommendation
 
+Kafka Events -> Spark -> Aggregation -> Recommendation
 
-
+Types of Recommendation
+1. User based
+2. Product based
+3. AI + Personalization
 
 
 

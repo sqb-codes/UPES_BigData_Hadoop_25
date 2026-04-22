@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import  col, from_json
+from pyspark.sql.functions import  col, from_json, count, window
 from pyspark.sql.types import StructType, StringType, IntegerType, DoubleType
 
 spark = SparkSession.builder.appName("Kafka Spark Consumer").getOrCreate()
@@ -27,13 +27,46 @@ parsed_df = df.select(
     from_json(col("value"), schema).alias("data")
 ).select("data.*")
 
+# Convert timestamp to proper time
+from pyspark.sql.functions import to_timestamp
+parsed_df = parsed_df.withColumn(
+    "event_time",
+    to_timestamp(col("timestamp"))
+)
+
 filtered_df = parsed_df.filter(
     col("event_type").isin("view", "click", "add_to_cart", "search")
 )
 
-query = filtered_df.writeStream \
-    .outputMode("append") \
+# Trending products
+# Count events per product in last 1 minute window
+trending_df = filtered_df \
+    .groupby(
+    window(col("event_time"), "1 minute"),
+    col("product_id")
+) \
+    .agg(
+    count("*").alias("event_count")
+)
+
+# User Based Recommendation
+user_activity_df = filtered_df \
+    .groupby("user_id", "product_id") \
+    .agg(count("*").alias("interaction_count"))
+
+# Print Trending Products
+trending_query = trending_df.writeStream \
+    .outputMode("complete") \
     .format("console") \
+    .option("truncate",False) \
     .start()
 
-query.awaitTermination()
+# Print Trending Products
+user_query = user_activity_df.writeStream \
+    .outputMode("complete") \
+    .format("console") \
+    .option("truncate",False) \
+    .start()
+
+# Keep streaming running
+spark.streams.awaitAnyTermination()
