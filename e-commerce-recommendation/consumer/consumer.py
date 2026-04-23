@@ -67,7 +67,7 @@ def write_to_mongo(collection):
     return _write
 
 trending_query = trending_df.writeStream \
-    .foreachBatch(write_to_mongo("recommendations")) \
+    .foreachBatch(write_to_mongo("trending")) \
     .outputMode("update") \
     .option("checkpointLocation", "/tmp/spark-checkpoint/trending") \
     .start()

@@ -67,11 +67,12 @@ Phase 2: Kafka -> Apache Spark
 Read Kafka stream in Spark
 Kafka (clickstream topic) => Spark Streaming => Transform => Output
 
+docker compose build spark
+docker compose up -d
 docker exec -it spark-pipeline bash
 
 /opt/spark/bin/spark-submit \
 --master local[*] \
---packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3 \
 /app/consumer/consumer.py
 
 
@@ -84,6 +85,15 @@ Types of Recommendation
 1. User based
 2. Product based
 3. AI + Personalization
+
+
+Phase 4: MongoDB + API Integration
+Persist recommendations in Database - MongoDB
+
+Expose data using API - FastAPI
+
+
+
 
 
 

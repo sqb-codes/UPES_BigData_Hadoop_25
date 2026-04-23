@@ -30,7 +30,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   spark:
-    image: apache/spark:3.5.3
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: spark-pipeline
     command: sleep infinity
     user: root

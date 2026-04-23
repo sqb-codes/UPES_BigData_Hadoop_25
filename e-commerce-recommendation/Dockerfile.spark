@@ -1,0 +1,15 @@
+FROM apache/spark:3.5.3
+
+USER root
+
+# Download all JARs (incl. transitive deps) via spark-submit, then copy to
+# /opt/spark/jars/ so they are on the classpath without --packages at runtime.
+RUN echo "print('warmup')" > /tmp/warmup.py && \
+    /opt/spark/bin/spark-submit \
+        --master local[1] \
+        --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.3,org.mongodb.spark:mongo-spark-connector_2.12:10.4.0 \
+        /tmp/warmup.py && \
+    find /root/.ivy2/cache -name "*.jar" \
+        ! -name "*sources.jar" ! -name "*javadoc.jar" \
+        -exec cp {} /opt/spark/jars/ \; && \
+    rm /tmp/warmup.py
