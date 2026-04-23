@@ -32,7 +32,7 @@ from pyspark.sql.functions import to_timestamp
 parsed_df = parsed_df.withColumn(
     "event_time",
     to_timestamp(col("timestamp"))
-)
+).withWatermark("event_time", "2 minutes")
 
 filtered_df = parsed_df.filter(
     col("event_type").isin("view", "click", "add_to_cart", "search")
@@ -54,19 +54,43 @@ user_activity_df = filtered_df \
     .groupby("user_id", "product_id") \
     .agg(count("*").alias("interaction_count"))
 
-# Print Trending Products
+
+def write_to_mongo(collection):
+    def _write(df, _epoch_id):
+        df.write \
+            .format("mongodb") \
+            .mode("append") \
+            .option("spark.mongodb.connection.uri", "mongodb://mongodb:27017/") \
+            .option("spark.mongodb.database", "e-comm-stream") \
+            .option("spark.mongodb.collection", collection) \
+            .save()
+    return _write
+
 trending_query = trending_df.writeStream \
-    .outputMode("complete") \
-    .format("console") \
-    .option("truncate",False) \
+    .foreachBatch(write_to_mongo("recommendations")) \
+    .outputMode("update") \
+    .option("checkpointLocation", "/tmp/spark-checkpoint/trending") \
     .start()
 
-# Print Trending Products
 user_query = user_activity_df.writeStream \
-    .outputMode("complete") \
-    .format("console") \
-    .option("truncate",False) \
+    .foreachBatch(write_to_mongo("user_activity")) \
+    .outputMode("update") \
+    .option("checkpointLocation", "/tmp/spark-checkpoint/user_activity") \
     .start()
+
+# # Print Trending Products
+# trending_query = trending_df.writeStream \
+#     .outputMode("complete") \
+#     .format("console") \
+#     .option("truncate",False) \
+#     .start()
+#
+# # Print Trending Products
+# user_query = user_activity_df.writeStream \
+#     .outputMode("complete") \
+#     .format("console") \
+#     .option("truncate",False) \
+#     .start()
 
 # Keep streaming running
 spark.streams.awaitAnyTermination()
