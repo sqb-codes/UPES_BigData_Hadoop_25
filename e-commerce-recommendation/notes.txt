@@ -92,9 +92,19 @@ Persist recommendations in Database - MongoDB
 
 Expose data using API - FastAPI
 
+Open MongoDB Bash
+1. Open mongodb container: docker exec -it mongodb bash
+2. Start MongoDB shell: mongosh
+3. Create database: use e-comm-stream
+4. Create collection: db.createCollection("recommendations");
+5. Print data in database: db.recommendations.find();
+Create another collection: db.createCollection("user_activity");
+Print data in database: db.user_activity.find();
 
+Next Step: Add FastAPI
+pip install fastapi uvicorn pymongo
 
-
-
+Now run: uvicorn services.app:app --reload
+http://localhost:8000/trending
 
 
