@@ -60,9 +60,9 @@ def write_to_mongo(collection):
         df.write \
             .format("mongodb") \
             .mode("append") \
-            .option("spark.mongodb.connection.uri", "mongodb://mongodb:27017/") \
-            .option("spark.mongodb.database", "e-comm-stream") \
-            .option("spark.mongodb.collection", collection) \
+            .option("spark.mongodb.write.connection.uri", "mongodb://mongodb:27017/") \
+            .option("spark.mongodb.write.database", "e-comm-stream") \
+            .option("spark.mongodb.write.collection", collection) \
             .save()
     return _write
 

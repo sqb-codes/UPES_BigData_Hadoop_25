@@ -17,6 +17,7 @@ def debug():
 # Get Trending Products
 @app.get("/trending")
 def get_trending():
+    # Task-1: Sort products in descending order based on event_count
     data = list(collection.find({}, {"_id":0}))
     print("Data from MongoDB:",data)
     return {"trending" : data}

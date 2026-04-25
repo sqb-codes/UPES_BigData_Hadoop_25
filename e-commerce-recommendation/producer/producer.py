@@ -26,7 +26,7 @@ while True:
     }
     producer.send(TOPIC_NAME, value=data)
     print("Sent:",data)
-    time.sleep(5)
+    time.sleep(30)
 
 
 
